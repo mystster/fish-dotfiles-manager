@@ -12,7 +12,7 @@ A simple, robust dotfiles management tool for Fish shell users, leveraging a bar
 ## Features
 
 1.  **Dotfiles Management**: Wraps a bare git repository to manage configuration files from any location.
-    -   **Configurable**: Set your preferred dotfiles directory.
+    -   **Configurable**: Set your preferred dotfiles directory (defaults to `~/.dotfiles.git`).
 2.  **Lazygit Integration**: Seamless interface to review changes, stage files, and commit using `lazygit`.
 3.  **Unmanaged File Explorer**: A TUI (via `broot`) to browse files in a tree structure and easily add them.
 4.  **Flexible Deployment**: Bootstrap script supports both cloning existing repos and initializing new ones.
