@@ -31,7 +31,7 @@ Ensure `git`, `fish`, `broot`, and `lazygit` are installed (the setup script wil
 ### One-liner Installation
 
 ```fish
-curl -sL https://raw.githubusercontent.com/mystster/dotfiles-fish/main/setup.fish | fish
+curl -sL https://raw.githubusercontent.com/mystster/fish-dotfiles-manager/main/setup.fish | fish
 ```
 
 > **Note**: This will install the dotfiles management tools. You can simply verify the installation and start managing your files.

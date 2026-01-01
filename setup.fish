@@ -5,7 +5,7 @@ set LOG_FILE "setup.log"
 
 # Configuration (Update these for your fork)
 set REPO_USER "mystster"
-set REPO_NAME "dotfiles-fish"
+set REPO_NAME "fish-dotfiles-manager"
 set REPO_BRANCH "main"
 set RAW_BASE_URL "https://raw.githubusercontent.com/$REPO_USER/$REPO_NAME/$REPO_BRANCH"
 
