@@ -1,6 +1,14 @@
 {
     "default_flags": "h",
     "gitignore": false,
+    "preview_transformers": [
+        {
+            "input_extensions": ["*"],
+            "output_extension": "txt",
+            "mode": "text",
+            "command": ["bat", "--color=always", "--paging=never", "{input-path}"]
+        }
+    ],
     "verbs": [
         {
             "invocation": "add",
