@@ -31,10 +31,10 @@ Ensure `git`, `fish`, `broot`, and `lazygit` are installed (the setup script wil
 ### One-liner Installation
 
 ```fish
-curl -sL https://raw.githubusercontent.com/your_username/dotfiles-fish/main/setup.fish | fish
+curl -sL https://raw.githubusercontent.com/mystster/dotfiles-fish/main/setup.fish | fish
 ```
 
-> **Note**: Replace `your_username/dotfiles-fish` with your actual repository.
+> **Important**: You must fork this repository and update the `REPO_USER` variables in `setup.fish` to point to your fork before running the one-liner!
 
 ### Interactive Setup
 The script will prompt you to:

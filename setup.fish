@@ -34,8 +34,6 @@ echo "1. Initialize new repository (starts with whitelist mode)"
 echo "2. Clone existing repository"
 read -P "Select option (1/2): " option
 
-read -P "Select option (1/2): " option
-
 function download_file
     set -l relative_path $argv[1]
     set -l target_path $argv[2]
