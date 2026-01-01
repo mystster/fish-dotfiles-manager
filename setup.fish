@@ -69,11 +69,16 @@ if test "$option" = "1"
     # Setup whitelist
     if not test -f "$HOME/.gitignore"
         echo "*" > "$HOME/.gitignore"
-        log "Created .gitignore with *"
+        echo "!*/" >> "$HOME/.gitignore"
+        log "Created .gitignore with * and !*/"
     else
         if not grep -Fq "*" "$HOME/.gitignore"
             echo "*" >> "$HOME/.gitignore"
             log "Appended * to existing .gitignore"
+        end
+        if not grep -Fq "!*/" "$HOME/.gitignore"
+            echo "!*/" >> "$HOME/.gitignore"
+            log "Appended !*/ to existing .gitignore"
         end
     end
     
@@ -85,6 +90,7 @@ if test "$option" = "1"
     download_file ".config/dotfiles/broot.conf.hjson" "$HOME/.config/dotfiles/broot.conf.hjson"
 
     # Update whitelist for these files
+    echo "!.gitignore" >> "$HOME/.gitignore"
     echo "!.config/fish/functions/dot.fish" >> "$HOME/.gitignore"
     echo "!.config/fish/functions/dot-lazy.fish" >> "$HOME/.gitignore"
     echo "!.config/fish/functions/dot-add.fish" >> "$HOME/.gitignore"
@@ -92,6 +98,7 @@ if test "$option" = "1"
     echo "!.config/dotfiles/broot.conf.hjson" >> "$HOME/.gitignore"
 
     # Add gitignore and template files
+    # Whitelist is strictly configured, so standard git add should work
     git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.gitignore"
     git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/fish/functions/dot.fish"
     git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/fish/functions/dot-lazy.fish"
@@ -99,8 +106,12 @@ if test "$option" = "1"
     git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/fish/functions/_dot_add_helper.fish"
     git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/dotfiles/broot.conf.hjson"
 
-    git --git-dir=$DOTFILES_DIR --work-tree=$HOME commit -m "Initial commit: Add whitelist and dotfiles tools"
-    log "Committed initial dotfiles"
+    if git --git-dir=$DOTFILES_DIR --work-tree=$HOME commit -m "Initial commit: Add whitelist and dotfiles tools"
+        log "Committed initial dotfiles"
+    else
+        log "Warning: Initial commit failed (likely due to missing git user identity)."
+        log "Please configure git user and email, then run: dot commit -m 'Initial commit'"
+    end
 
     # Set universal variable
     set -Ux DOTFILES_DIR $DOTFILES_DIR
