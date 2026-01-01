@@ -87,6 +87,7 @@ During the initial development, the following decisions were made based on user 
     - **Robust Environment Variables**: Use `set -q VAR; or set -Ux VAR val` for setting universal variables to respect existing values and ensure persistence across sessions.
     - **Directory Navigation**: Always use `pushd` and `popd` instead of `cd` in functions to respect the user's directory stack.
     - **Consolidated Configuration**: Configuration variables (e.g., repo URL, user) should be grouped at the top of scripts (like `setup.fish`) for easy customization.
+    - **Verify Before Commit**: When applying fixes, **ALWAYS** explain the cause and solution in detail (in Japanese) and obtain user approval **BEFORE** committing/pushing changes. This prevents accidental regressions or misunderstanding of the solution.
 
 ## 6. Future Improvements
 - Support for other package managers (apt, dnf) if expanding beyond Arch.
