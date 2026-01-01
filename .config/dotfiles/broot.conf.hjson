@@ -1,0 +1,20 @@
+{
+    "default_flags": "h",
+    "gitignore": false,
+    "verbs": [
+        {
+            "invocation": "add",
+            "key": "ctrl-a",
+            "execution": "fish -c \"_dot_add_helper {file}\"",
+            "leave_broot": false,
+            "apply_to": "file"
+        },
+        {
+            "invocation": "add_dir",
+            "key": "ctrl-a",
+            "execution": "fish -c \"_dot_add_helper {directory}\"",
+            "leave_broot": false,
+            "apply_to": "directory"
+        }
+    ]
+}
