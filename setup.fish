@@ -32,7 +32,7 @@ echo "Fish Dotfiles Manager Setup"
 echo "---------------------------"
 echo "1. Initialize new repository (starts with whitelist mode)"
 echo "2. Clone existing repository"
-read -P "Select option (1/2): " option
+read -P "Select option (1/2): " option < /dev/tty
 
 function download_file
     set -l relative_path $argv[1]
@@ -49,9 +49,10 @@ function download_file
 end
 
 if test "$option" = "1"
+
     if test -d $DOTFILES_DIR
         log "Directory $DOTFILES_DIR already exists."
-        read -P "Overwrite? (y/N): " confirm
+        read -P "Overwrite? (y/N): " confirm < /dev/tty
         if test "$confirm" = "y"
             rm -rf $DOTFILES_DIR
         else
@@ -106,7 +107,7 @@ if test "$option" = "1"
     log "Set DOTFILES_DIR to $DOTFILES_DIR"
 
 elseif test "$option" = "2"
-    read -P "Enter repository URL: " repo_url
+    read -P "Enter repository URL: " repo_url < /dev/tty
     if test -z "$repo_url"
         log "Error: URL cannot be empty"
         exit 1
@@ -128,7 +129,7 @@ elseif test "$option" = "2"
     git --git-dir=$DOTFILES_DIR --work-tree=$HOME checkout
     if test $status -ne 0
         log "Checkout failed due to existing files."
-        read -P "Backup conflicting files and retry? (y/N): " backup_confirm
+        read -P "Backup conflicting files and retry? (y/N): " backup_confirm < /dev/tty
         if test "$backup_confirm" = "y"
             mkdir -p .dotfiles_backup
             log "Backing up conflicting files to .dotfiles_backup..."
