@@ -106,7 +106,7 @@ if test "$option" = "1"
     set -Ux DOTFILES_DIR $DOTFILES_DIR
     log "Set DOTFILES_DIR to $DOTFILES_DIR"
 
-elseif test "$option" = "2"
+else if test "$option" = "2"
     read -P "Enter repository URL: " repo_url < /dev/tty
     if test -z "$repo_url"
         log "Error: URL cannot be empty"
