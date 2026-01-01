@@ -6,7 +6,7 @@ function _dot_add_helper --description 'Helper to add files to dotfiles and whit
         return 1
     end
 
-    set -q DOTFILES_DIR; or set -Ux DOTFILES_DIR $HOME/.cfg
+    set -q DOTFILES_DIR; or set -Ux DOTFILES_DIR $HOME/.dotfiles.git
 
     # Relative path from HOME (assuming we are running in HOME or target is full path?)
     # broot passes full path or relative? "execution": "_dot_add_helper {file}" usually passes full path or relative to CWD.

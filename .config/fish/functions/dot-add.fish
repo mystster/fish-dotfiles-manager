@@ -1,5 +1,5 @@
 function dot-add --description 'TUI to add unmanaged files to dotfiles'
-    set -q DOTFILES_DIR; or set -Ux DOTFILES_DIR $HOME/.cfg
+    set -q DOTFILES_DIR; or set -Ux DOTFILES_DIR $HOME/.dotfiles.git
     set -l config_file "$HOME/.config/dotfiles/broot.conf.hjson"
     
     if not test -f $config_file

@@ -8,8 +8,8 @@ The goal of this tool is to provide a robust, shell-integrated way to manage dot
 ## 2. Core Concepts
 
 ### Bare Git Repository
-Instead of a traditional git repo with a `.git` folder inside a working directory, we use a "bare" repository (located at `~/.cfg` by default) and treat `$HOME` as the work tree.
-- **Command**: `dot` is an alias/function for `git --git-dir=$HOME/.cfg --work-tree=$HOME`.
+Instead of a traditional git repo with a `.git` folder inside a working directory, we use a "bare" repository (located at `~/.dotfiles.git` by default) and treat `$HOME` as the work tree.
+- **Command**: `dot` is an alias/function for `git --git-dir=$HOME/.dotfiles.git --work-tree=$HOME`.
 
 ### Whitelist Strategy
 To avoid polluting the repository with unrelated home directory files, we adopt a **Whitelist** strategy:
@@ -57,7 +57,7 @@ repo_root/
 
 ### Configuration
 - **Environment Variable**: `DOTFILES_DIR` stores the location of the bare repo.
-- **Syntax**: `set -q DOTFILES_DIR; or set -Ux DOTFILES_DIR $HOME/.cfg` is used consistently to ensure the variable is universal (`-U`) and exported (`-x`) but respects existing values.
+- **Syntax**: `set -q DOTFILES_DIR; or set -Ux DOTFILES_DIR $HOME/.dotfiles.git` is used consistently to ensure the variable is universal (`-U`) and exported (`-x`) but respects existing values.
 
 ## 5. Design Decisions & Policies (Session History)
 

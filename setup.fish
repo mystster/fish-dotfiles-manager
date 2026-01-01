@@ -1,6 +1,6 @@
 #!/usr/bin/env fish
 
-set DOTFILES_DIR "$HOME/.cfg"
+set DOTFILES_DIR "$HOME/.dotfiles.git"
 set LOG_FILE "setup.log"
 
 # Configuration (Update these for your fork)
