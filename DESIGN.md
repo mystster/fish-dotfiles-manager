@@ -81,6 +81,13 @@ During the initial development, the following decisions were made based on user 
     - Standardized variable setting syntax.
     - Dependencies checked via `pacman -Q`.
 
+5.  **User-Requested Policies (Session Directives)**:
+    - **Minimize User Input**: The setup process should be as automated as possible. Avoid unnecessary interactive prompts if reasonable defaults exist.
+    - **Forking is Optional**: Using the tool should *not* strictly require forking the source repository. Forking is only needed if the user wants to contribute code or manage their own dotfiles using their fork as the remote.
+    - **Robust Environment Variables**: Use `set -q VAR; or set -Ux VAR val` for setting universal variables to respect existing values and ensure persistence across sessions.
+    - **Directory Navigation**: Always use `pushd` and `popd` instead of `cd` in functions to respect the user's directory stack.
+    - **Consolidated Configuration**: Configuration variables (e.g., repo URL, user) should be grouped at the top of scripts (like `setup.fish`) for easy customization.
+
 ## 6. Future Improvements
 - Support for other package managers (apt, dnf) if expanding beyond Arch.
 - More robust error handling for network requests in `setup.fish`.
