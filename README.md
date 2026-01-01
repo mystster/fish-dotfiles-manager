@@ -34,7 +34,7 @@ Ensure `git`, `fish`, `broot`, and `lazygit` are installed (the setup script wil
 curl -sL https://raw.githubusercontent.com/mystster/dotfiles-fish/main/setup.fish | fish
 ```
 
-> **Important**: You must fork this repository and update the `REPO_USER` variables in `setup.fish` to point to your fork before running the one-liner!
+> **Note**: This will install the dotfiles management tools. You can simply verify the installation and start managing your files.
 
 ### Interactive Setup
 The script will prompt you to:
