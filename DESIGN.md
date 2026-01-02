@@ -13,9 +13,14 @@ Instead of a traditional git repo with a `.git` folder inside a working director
 
 ### Whitelist Strategy
 To avoid polluting the repository with unrelated home directory files, we adopt a **Whitelist** strategy:
-- The `.gitignore` file contains `*` (ignore everything) by default.
-- Only files explicitly "added" are tracked.
-- **Logic**: When a file is added via this tool, it is automatically *un-ignored* (whitelisted) in `.gitignore` (e.g., `!path/to/file` is appended).
+- The `.gitignore` file initially contains:
+    ```
+    *
+    !*/
+    ```
+- **`*`**: Ignores everything by default.
+- **`!*/`**: Un-ignores directories. This is **critical** because Git cannot track a file if its parent directory is ignored. This allows Git to traverse the directory tree.
+- Only files explicitly "added" are tracked by appending `!path/to/file` to `.gitignore`.
 
 ## 3. Technology Stack & Dependencies
 
@@ -24,7 +29,8 @@ To avoid polluting the repository with unrelated home directory files, we adopt 
 | **Shell** | `fish` | The primary shell environment. Scripts utilize fish syntax and autoloading features. |
 | **VCS** | `git` | Core version control. |
 | **TUI (Git)** | `lazygit` | Visual interface for committing, staging, and reviewing changes. |
-| **TUI (Files)** | `broot` | Tree-view file explorer used to browse *unmanaged* files and add them to the repo. |
+| **TUI (Files)** | `fzf` | Interactive fuzzy finder used to browse *unmanaged* files and add them to the repo. |
+| **Utilities** | `fd`, `bat`, `sort` | High-performance file searching, syntax-highlighted previews, and organized listing. |
 | **Package Manager** | `pacman` | Used in `setup.fish` to verify and install dependencies (Arch Linux specific). |
 
 ## 4. Architecture & Components
@@ -34,62 +40,50 @@ The file structure mirrors the standard Fish configuration layout to enable func
 ### Directory Structure
 ```
 repo_root/
-├── setup.fish                          # Bootstrap/Installation script
+├── setup.fish                          # Bootstrap/Installation/Update script
 ├── .config/
-│   ├── fish/
-│   │   └── functions/
-│   │       ├── dot.fish                # Core git wrapper
-│   │       ├── dot-lazy.fish           # Lazygit wrapper
-│   │       ├── dot-add.fish            # TUI entry point
-│   │       └── _dot_add_helper.fish    # Helper logic (whitelist handling)
-│   └── dotfiles/
-│       └── broot.conf.hjson            # Dedicated broot configuration
+│   └── fish/
+│       └── functions/
+│           ├── dot.fish                # Core git wrapper
+│           ├── dot-lazy.fish           # Lazygit wrapper
+│           ├── dot-add.fish            # Interactive file addition (fzf-based)
+│           └── _dot_add_helper.fish    # Helper logic (whitelist & git-add)
 ```
 
 ### Key Functions
 - **`dot`**: Wraps `git`. Configures completions to wrap `git` so tab-completion works.
 - **`dot-lazy`**: Opens `lazygit` with the correct git-dir/work-tree context.
-- **`dot-add`**: Launches `broot` with a custom configuration file (`broot.conf.hjson`).
-    - Uses `pushd`/`popd` to preserve the user's directory context.
-- **`_dot_add_helper`**: Invoked by `broot` when a file is selected.
-    - Updates `.gitignore` to whitelist the file (`!filename`).
-    - Runs `git add` for both the target file and `.gitignore`.
+- **`dot-add`**: Launches an interactive `fzf` TUI to find and add unmanaged files.
+    - **Hybrid Sorting**: Initial listing is alphabetical (A-Z); searching re-sorts by fuzzy relevance.
+    - **Directory Toggle**: `Ctrl-R` switches between a focused view (`.config`, `.local/share`) and a full home search.
+    - **Automatic Filtering**: Always excludes files already tracked by the Git repository.
+- **`_dot_add_helper`**: Invoked by `dot-add` with one or more file paths.
+    - Updates `.gitignore` to whitelist the files (`!filename`).
+    - Stages the target files and the updated `.gitignore` in the Git repository.
 
 ### Configuration
 - **Environment Variable**: `DOTFILES_DIR` stores the location of the bare repo.
-- **Syntax**: `set -q DOTFILES_DIR; or set -Ux DOTFILES_DIR $HOME/.dotfiles.git` is used consistently to ensure the variable is universal (`-U`) and exported (`-x`) but respects existing values.
+- **Syntax**: `set -q DOTFILES_DIR; or set -Ux DOTFILES_DIR $HOME/.dotfiles.git` is used consistently to ensure persistence and flexibility.
 
-## 5. Design Decisions & Policies (Session History)
+## 5. Design Decisions & Policies
 
-During the initial development, the following decisions were made based on user requirements:
+### TUI Selection: Transition from Broot to FZF
+Initially, `broot` was chosen for its tree-style exploration. However, based on user feedback and practical efficiency, the project transitioned to a custom **`fzf`** TUI.
+- **Why?**: `fzf` offers superior fuzzy search speed, more robust multi-selection, and a cleaner interactive experience when managing specific files across deep directory structures.
+- **Innovation**: The implementation uses a "Hybrid Sorting" approach and a "Delayed Filter" (via `psub`) to ensure high performance and intuitive organization.
 
-1.  **TUI Selection**:
-    - Initially planned with `fzf`, but switched to **`broot`** because a "tree view" was explicitly requested for browsing unmanaged files.
-    - A dedicated config file (`broot.conf.hjson`) is used to isolate the tool's settings from the user's personal `broot` config.
+### Tool Update & Automated Cleanup Strategy
+`setup.fish` serves as both an installer and a maintenance tool.
+- **Centralized Management**: Managed tools and obsolete tools are defined in lists.
+- **Update Logic**: Option `3. Update tools` synchronizes local scripts with the latest GitHub versions.
+- **Automated Cleanup**: The script automatically removes legacy files (like `dot-add-fzf.fish` or `broot.conf.hjson`) and handles Git index purging, ensuring the user's environment stays clean and synchronized with the project's evolution.
 
-2.  **Deployment**:
-    - **One-Liner**: Installation via `curl ... | fish` is supported.
-    - **Download Logic**: The setup script downloads individual function files from the GitHub repository ("raw" URLs) instead of cloning the entire repo for the setup process itself (though option 2 clones the bare repo).
-    - **Dependency Handling**: If dependencies (`git`, `lazygit`, `broot`) are missing, the script attempts to install them using `sudo pacman -S`.
+## 6. User-Requested Policies
+- **Minimize User Input**: Automated setup with reasonable defaults.
+- **Robust Variables**: Use universal variables (`-Ux`) to preserve configuration across shell sessions.
+- **Directory Politeness**: Use `pushd`/`popd` instead of `cd` in functions to respect the user's working directory stack.
+- **Verification Before Commit**: Detailed explanation and approval required before making non-trivial changes to the repository.
 
-3.  **Setup Workflow**:
-    - **Initialize (Option 1)**: Creates a new bare repo, creates the `.gitignore` with `*`, and downloads the tool functions.
-    - **Clone (Option 2)**: Clones an existing repo and attempts checkout. If conflicts exist, it offers to backup conflicting files to `.dotfiles_backup`.
-
-4.  **Code Style**:
-    - Use `pushd`/`popd` instead of `cd` in functions to be polite to the user's session.
-    - Standardized variable setting syntax.
-    - Dependencies checked via `pacman -Q`.
-
-5.  **User-Requested Policies (Session Directives)**:
-    - **Minimize User Input**: The setup process should be as automated as possible. Avoid unnecessary interactive prompts if reasonable defaults exist.
-    - **Forking is Optional**: Using the tool should *not* strictly require forking the source repository. Forking is only needed if the user wants to contribute code or manage their own dotfiles using their fork as the remote.
-    - **Robust Environment Variables**: Use `set -q VAR; or set -Ux VAR val` for setting universal variables to respect existing values and ensure persistence across sessions.
-    - **Directory Navigation**: Always use `pushd` and `popd` instead of `cd` in functions to respect the user's directory stack.
-    - **Consolidated Configuration**: Configuration variables (e.g., repo URL, user) should be grouped at the top of scripts (like `setup.fish`) for easy customization.
-    - **Verify Before Commit**: When applying fixes, **ALWAYS** explain the cause and solution in detail (in Japanese) and obtain user approval **BEFORE** committing/pushing changes. This prevents accidental regressions or misunderstanding of the solution.
-
-## 6. Future Improvements
-- Support for other package managers (apt, dnf) if expanding beyond Arch.
-- More robust error handling for network requests in `setup.fish`.
-- Validation of `REPO_USER` variables in the setup script.
+## 7. Future Improvements
+- Support for multiple package managers (beyond `pacman`).
+- Validation of repository configuration during the update process.
