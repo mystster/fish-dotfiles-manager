@@ -7,17 +7,23 @@ function dot-add-fzf --description 'FZF-based TUI to add unmanaged files to dotf
         return 1
     end
 
-    # Define file lister
-    set -l lister
+    # Define listers
+    set -l lister_default
+    set -l lister_all
+    
+    # Check which directories exist
+    set -l default_paths
+    for d in .config .local/share
+        if test -d $HOME/$d; set -a default_paths $d; end
+    end
+    if test (count $default_paths) -eq 0; set default_paths "."; end
+
     if command -sq fd
-        # --hidden: include hidden files
-        # --exclude .git: exclude standard .git dirs
-        # --exclude "*.git": exclude bare repos like .dotfiles.git
-        set lister "fd --hidden --exclude .git --exclude '*.git' --type f"
+        set lister_default "fd --hidden --exclude .git --exclude '*.git' --type f . $default_paths"
+        set lister_all "fd --hidden --exclude .git --exclude '*.git' --type f"
     else
-        # find fallback with exclusions for .git and directories ending in .git
-        set lister "find . -maxdepth 4 -not -path '*/.git/*' -not -path '*/.git' -not -path '*.git/*' -not -path '*.git' -not -path '*/.*' -type f"
-        echo "Warning: fd not found, falling back to find (less efficient)."
+        set lister_default "find $default_paths -maxdepth 4 -not -path '*/.*' -type f"
+        set lister_all "find . -maxdepth 4 -not -path '*/.*' -type f"
     end
 
     # Define previewer
@@ -28,24 +34,30 @@ function dot-add-fzf --description 'FZF-based TUI to add unmanaged files to dotf
         set previewer "cat {} | head -n 100"
     end
 
+    # Use a temp file to track toggle state (0: default, 1: all)
+    set -l state_file (mktemp)
+    echo 0 > $state_file
+
+    # Define the filter logic as a reusable string
+    # We use single quotes to delay the execution of psub until the command is actually run.
+    set -l filter_cmd 'grep -v -F -x -f (git --git-dir=$DOTFILES_DIR --work-tree=$HOME ls-files | psub)'
+
     # Launch fzf in HOME
     pushd $HOME
     
-    # Get tracked files
-    # Using a variable to check if anything is tracked
-    set -l tracked_files (git --git-dir=$DOTFILES_DIR --work-tree=$HOME ls-files)
+    # fzf with dynamic reload
+    # We use 'fish -c' to ensure the pipes and psub work correctly during reload.
+    # The parent Fish expands $lister_all and $filter_cmd into the reload string.
+    set -l selected_files (eval "$lister_default | $filter_cmd" | fzf -m \
+        --header "ctrl-r: toggle filter (config+local / all)" \
+        --bind "ctrl-r:reload(fish -c \"if grep -q 0 $state_file; echo 1 > $state_file; $lister_all | $filter_cmd; else; echo 0 > $state_file; $lister_default | $filter_cmd; end\")" \
+        --preview "$previewer")
     
-    # -m: multi-select
-    set -l selected_files
-    if test -n "$tracked_files"
-        # Filter and launch fzf
-        # psub must be used directly in the command argument to stay alive during execution
-        set selected_files (eval $lister | grep -v -F -x -f (printf "%s\n" $tracked_files | psub) | fzf -m --preview "$previewer")
-    else
-        # If no files are tracked, show everything (skip grep)
-        set selected_files (eval $lister | fzf -m --preview "$previewer")
-    end
+    set -l fzf_status $status
     popd
+
+    # Cleanup temp file
+    rm -f $state_file
 
     if test -n "$selected_files"
         # Pass all selected files to the helper
