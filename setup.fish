@@ -82,7 +82,8 @@ function cleanup_tools
         # Remove from .gitignore if exists
         if test -f "$HOME/.gitignore"
             # Remove the exact line "!$tool"
-            sed -i "/^!$(echo $tool | sed 's/\//\\\//g')$/d" "$HOME/.gitignore"
+            set -l escaped_tool (echo $tool | sed 's/\//\\\//g')
+            sed -i "/^!$escaped_tool\$/d" "$HOME/.gitignore"
         end
     end
 end
