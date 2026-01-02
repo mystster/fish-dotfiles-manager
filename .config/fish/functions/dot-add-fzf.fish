@@ -40,15 +40,17 @@ function dot-add-fzf --description 'FZF-based TUI to add unmanaged files to dotf
 
     # Define the filter logic as a reusable string
     # We use single quotes to delay the execution of psub until the command is actually run.
-    set -l filter_cmd 'grep -v -F -x -f (git --git-dir=$DOTFILES_DIR --work-tree=$HOME ls-files | psub)'
+    # We add '| sort' at the end to ensure results are always alphabetical.
+    set -l filter_cmd 'grep -v -F -x -f (git --git-dir=$DOTFILES_DIR --work-tree=$HOME ls-files | psub) | sort'
 
     # Launch fzf in HOME
     pushd $HOME
     
     # fzf with dynamic reload
-    # We use 'fish -c' to ensure the pipes and psub work correctly during reload.
-    # The parent Fish expands $lister_all and $filter_cmd into the reload string.
+    # --layout=reverse: puts prompt at top, first line of input at top (A-Z top-down)
+    # We remove --no-sort to allow fzf's internal fuzzy scoring when a query is typed.
     set -l selected_files (eval "$lister_default | $filter_cmd" | fzf -m \
+        --layout=reverse \
         --header "ctrl-r: toggle filter (config+local / all)" \
         --bind "ctrl-r:reload(fish -c \"if grep -q 0 $state_file; echo 1 > $state_file; $lister_all | $filter_cmd; else; echo 0 > $state_file; $lister_default | $filter_cmd; end\")" \
         --preview "$previewer")
