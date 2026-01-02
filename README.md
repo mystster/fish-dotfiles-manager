@@ -41,6 +41,7 @@ curl -sL https://raw.githubusercontent.com/mystster/fish-dotfiles-manager/main/s
 The script will prompt you to:
 1.  **Initialize new repository**: Creates a bare repo, whitelisted `.gitignore`, and downloads the necessary tool functions (`dot`, `dot-add`, etc.) from GitHub.
 2.  **Clone existing repository**: Clones your repo and sets up the environment.
+3.  **Update tools**: Synchronizes local scripts with the latest versions from the repository and removes obsolete files automatically.
 
 ## Usage
 

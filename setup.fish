@@ -9,6 +9,17 @@ set REPO_NAME "fish-dotfiles-manager"
 set REPO_BRANCH "main"
 set RAW_BASE_URL "https://raw.githubusercontent.com/$REPO_USER/$REPO_NAME/$REPO_BRANCH"
 
+# Tool definitions
+set managed_tools \
+    ".config/fish/functions/dot.fish" \
+    ".config/fish/functions/dot-lazy.fish" \
+    ".config/fish/functions/dot-add.fish" \
+    ".config/fish/functions/_dot_add_helper.fish"
+
+set obsolete_tools \
+    ".config/fish/functions/dot-add-fzf.fish" \
+    ".config/dotfiles/broot.conf.hjson"
+
 function log
     echo (date "+%Y-%m-%d %H:%M:%S") $argv | tee -a $LOG_FILE
 end
@@ -24,16 +35,6 @@ function check_dependency
     end
 end
 
-check_dependency git
-check_dependency lazygit
-check_dependency fzf
-
-echo "Fish Dotfiles Manager Setup"
-echo "---------------------------"
-echo "1. Initialize new repository (starts with whitelist mode)"
-echo "2. Clone existing repository"
-read -P "Select option (1/2): " option < /dev/tty
-
 function download_file
     set -l relative_path $argv[1]
     set -l target_path $argv[2]
@@ -48,8 +49,56 @@ function download_file
     end
 end
 
-if test "$option" = "1"
+function update_tools
+    log "Updating managed tools..."
+    for tool in $managed_tools
+        download_file $tool "$HOME/$tool"
+        # Update .gitignore if not already whitelisted
+        if not grep -Fq "!$tool" "$HOME/.gitignore"
+            echo "!$tool" >> "$HOME/.gitignore"
+        end
+        # Stage in git if repo exists
+        if test -d $DOTFILES_DIR
+            git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/$tool"
+        end
+    end
+    if test -d $DOTFILES_DIR
+        git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.gitignore"
+    end
+end
 
+function cleanup_tools
+    log "Cleaning up obsolete tools..."
+    for tool in $obsolete_tools
+        set -l full_path "$HOME/$tool"
+        if test -f $full_path
+            log "Removing $tool..."
+            rm -f $full_path
+            # Remove from git index if repo exists
+            if test -d $DOTFILES_DIR
+                git --git-dir=$DOTFILES_DIR --work-tree=$HOME rm --ignore-unmatch "$full_path"
+            end
+        end
+        # Remove from .gitignore if exists
+        if test -f "$HOME/.gitignore"
+            # Remove the exact line "!$tool"
+            sed -i "/^!$(echo $tool | sed 's/\//\\\//g')$/d" "$HOME/.gitignore"
+        end
+    end
+end
+
+check_dependency git
+check_dependency lazygit
+check_dependency fzf
+
+echo "Fish Dotfiles Manager Setup"
+echo "---------------------------"
+echo "1. Initialize new repository (starts with whitelist mode)"
+echo "2. Clone existing repository"
+echo "3. Update tools (Download latest and cleanup)"
+read -P "Select option (1/2/3): " option < /dev/tty
+
+if test "$option" = "1"
     if test -d $DOTFILES_DIR
         log "Directory $DOTFILES_DIR already exists."
         read -P "Overwrite? (y/N): " confirm < /dev/tty
@@ -71,48 +120,36 @@ if test "$option" = "1"
         echo "*" > "$HOME/.gitignore"
         echo "!*/" >> "$HOME/.gitignore"
         log "Created .gitignore with * and !*/"
-    else
-        if not grep -Fq "*" "$HOME/.gitignore"
-            echo "*" >> "$HOME/.gitignore"
-            log "Appended * to existing .gitignore"
-        end
-        if not grep -Fq "!*/" "$HOME/.gitignore"
-            echo "!*/" >> "$HOME/.gitignore"
-            log "Appended !*/ to existing .gitignore"
-        end
     end
     
-    # Download template files (functions and config)
-    download_file ".config/fish/functions/dot.fish" "$HOME/.config/fish/functions/dot.fish"
-    download_file ".config/fish/functions/dot-lazy.fish" "$HOME/.config/fish/functions/dot-lazy.fish"
-    download_file ".config/fish/functions/dot-add.fish" "$HOME/.config/fish/functions/dot-add.fish"
-    download_file ".config/fish/functions/_dot_add_helper.fish" "$HOME/.config/fish/functions/_dot_add_helper.fish"
-
-    # Update whitelist for these files
     echo "!.gitignore" >> "$HOME/.gitignore"
-    echo "!.config/fish/functions/dot.fish" >> "$HOME/.gitignore"
-    echo "!.config/fish/functions/dot-lazy.fish" >> "$HOME/.gitignore"
-    echo "!.config/fish/functions/dot-add.fish" >> "$HOME/.gitignore"
-    echo "!.config/fish/functions/_dot_add_helper.fish" >> "$HOME/.gitignore"
-
-    # Add gitignore and template files
-    # Whitelist is strictly configured, so standard git add should work
-    git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.gitignore"
-    git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/fish/functions/dot.fish"
-    git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/fish/functions/dot-lazy.fish"
-    git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/fish/functions/dot-add.fish"
-    git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/fish/functions/_dot_add_helper.fish"
+    
+    # Download and Stage Tools
+    update_tools
+    cleanup_tools
 
     if git --git-dir=$DOTFILES_DIR --work-tree=$HOME commit -m "Initial commit: Add whitelist and dotfiles tools"
         log "Committed initial dotfiles"
     else
         log "Warning: Initial commit failed (likely due to missing git user identity)."
-        log "Please configure git user and email, then run: dot commit -m 'Initial commit'"
     end
 
     # Set universal variable
     set -Ux DOTFILES_DIR $DOTFILES_DIR
     log "Set DOTFILES_DIR to $DOTFILES_DIR"
+
+else if test "$option" = "3"
+    if not test -d $DOTFILES_DIR
+        log "Error: DOTFILES_DIR ($DOTFILES_DIR) not found. Please initialize or clone first."
+        exit 1
+    end
+    
+    update_tools
+    cleanup_tools
+    
+    log "Committing updates..."
+    git --git-dir=$DOTFILES_DIR --work-tree=$HOME commit -m "chore: update tools via setup.fish"
+    log "Tools updated and changes committed."
 
 else if test "$option" = "2"
     read -P "Enter repository URL: " repo_url < /dev/tty
