@@ -85,6 +85,10 @@ function cleanup_tools
             sed -i "\|^!$tool\$|d" "$HOME/.gitignore"
         end
     end
+    # Ensure .gitignore changes are staged
+    if test -d $DOTFILES_DIR
+        git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.gitignore"
+    end
 end
 
 check_dependency git
@@ -144,12 +148,29 @@ else if test "$option" = "3"
         exit 1
     end
     
+    # Check index state before updates
+    set -l index_clean_before 0
+    if git --git-dir=$DOTFILES_DIR --work-tree=$HOME diff --staged --quiet
+        set index_clean_before 1
+    end
+
     update_tools
     cleanup_tools
     
-    log "Committing updates..."
-    git --git-dir=$DOTFILES_DIR --work-tree=$HOME commit -m "chore: update tools via setup.fish"
-    log "Tools updated and changes committed."
+    # Check index state after updates
+    if git --git-dir=$DOTFILES_DIR --work-tree=$HOME diff --staged --quiet
+        log "No changes to tools. Everything is up-to-date."
+    else
+        if test $index_clean_before -eq 1
+            log "Committing updates..."
+            git --git-dir=$DOTFILES_DIR --work-tree=$HOME commit -m "chore: update tools via setup.fish"
+            log "Tools updated and changes committed."
+        else
+            log "Warning: Independent changes were already staged in the repository."
+            log "Tool updates have been staged but NOT committed to avoid polluting your commit."
+            log "Please review changes with 'dot status' and commit manually."
+        end
+    end
 
 else if test "$option" = "2"
     read -P "Enter repository URL: " repo_url < /dev/tty
