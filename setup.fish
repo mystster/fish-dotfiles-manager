@@ -26,7 +26,6 @@ end
 
 check_dependency git
 check_dependency lazygit
-check_dependency broot
 check_dependency fzf
 
 echo "Fish Dotfiles Manager Setup"
@@ -87,18 +86,14 @@ if test "$option" = "1"
     download_file ".config/fish/functions/dot.fish" "$HOME/.config/fish/functions/dot.fish"
     download_file ".config/fish/functions/dot-lazy.fish" "$HOME/.config/fish/functions/dot-lazy.fish"
     download_file ".config/fish/functions/dot-add.fish" "$HOME/.config/fish/functions/dot-add.fish"
-    download_file ".config/fish/functions/dot-add-fzf.fish" "$HOME/.config/fish/functions/dot-add-fzf.fish"
     download_file ".config/fish/functions/_dot_add_helper.fish" "$HOME/.config/fish/functions/_dot_add_helper.fish"
-    download_file ".config/dotfiles/broot.conf.hjson" "$HOME/.config/dotfiles/broot.conf.hjson"
 
     # Update whitelist for these files
     echo "!.gitignore" >> "$HOME/.gitignore"
     echo "!.config/fish/functions/dot.fish" >> "$HOME/.gitignore"
     echo "!.config/fish/functions/dot-lazy.fish" >> "$HOME/.gitignore"
     echo "!.config/fish/functions/dot-add.fish" >> "$HOME/.gitignore"
-    echo "!.config/fish/functions/dot-add-fzf.fish" >> "$HOME/.gitignore"
     echo "!.config/fish/functions/_dot_add_helper.fish" >> "$HOME/.gitignore"
-    echo "!.config/dotfiles/broot.conf.hjson" >> "$HOME/.gitignore"
 
     # Add gitignore and template files
     # Whitelist is strictly configured, so standard git add should work
@@ -106,9 +101,7 @@ if test "$option" = "1"
     git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/fish/functions/dot.fish"
     git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/fish/functions/dot-lazy.fish"
     git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/fish/functions/dot-add.fish"
-    git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/fish/functions/dot-add-fzf.fish"
     git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/fish/functions/_dot_add_helper.fish"
-    git --git-dir=$DOTFILES_DIR --work-tree=$HOME add "$HOME/.config/dotfiles/broot.conf.hjson"
 
     if git --git-dir=$DOTFILES_DIR --work-tree=$HOME commit -m "Initial commit: Add whitelist and dotfiles tools"
         log "Committed initial dotfiles"

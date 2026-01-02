@@ -6,7 +6,7 @@ A simple, robust dotfiles management tool for Fish shell users, leveraging a bar
 
 - **Shell**: `fish`
 - **Core**: `git`
-- **UI**: `lazygit`, `broot`, `fzf`
+- **UI**: `lazygit`, `fzf`
 - **Utilities**: `fd` (recommended), `bat` (optional, for preview)
 
 ## Features
@@ -15,21 +15,19 @@ A simple, robust dotfiles management tool for Fish shell users, leveraging a bar
     -   **Configurable**: Set your preferred dotfiles directory (defaults to `~/.dotfiles.git`).
 2.  **Lazygit Integration**: Seamless interface to review changes, stage files, and commit using `lazygit`.
 3.  **Unmanaged File Explorer**: 
-    -   `dot-add`: TUI via `broot` to browse files in a tree structure.
-    -   `dot-add-fzf`: Interactive fuzzy finder via `fzf` with automatic filtering of already tracked files and a directory toggle (`Ctrl-R`).
+    -   `dot-add`: Interactive fuzzy finder via `fzf` with automatic filtering of already tracked files and a directory toggle (`Ctrl-R`).
 4.  **Flexible Deployment**: Bootstrap script supports both cloning existing repos and initializing new ones.
 
 ## Workflow
 
 - **Command**: `dot` (wraps git)
 - **Visual Git**: `dot-lazy` (or similar alias)
-- **Add Files (Tree View)**: `dot-add` (launches `broot`)
-- **Add Files (Fuzzy Finder)**: `dot-add-fzf` (launches `fzf`)
+- **Add Files (Fuzzy Finder)**: `dot-add` (launches `fzf`)
 
 ## Installation / Setup
 
 ### Prerequisites
-Ensure `git`, `fish`, `broot`, `fzf`, and `lazygit` are installed (the setup script will attempt to install them using `pacman` if missing).
+Ensure `git`, `fish`, `fzf`, and `lazygit` are installed (the setup script will attempt to install them using `pacman` if missing).
 
 ### One-liner Installation
 
@@ -48,9 +46,8 @@ The script will prompt you to:
 
 ### Managing Files
 - **Add new file**: 
-  - Run `dot-add`: Select files in the tree and press `Ctrl+a`.
-  - Run `dot-add-fzf`: Fuzzy-find unmanaged files. Toggle view with `Ctrl-r`.
-  - Both automatically update `.gitignore` (un-ignores the file) and stage the changes.
+  - Run `dot-add`: Fuzzy-find unmanaged files. Toggle view with `Ctrl-r`.
+  - Automatically updates `.gitignore` (un-ignores the file) and stages the changes.
 - **Commit changes**: Run `dot-lazy` (or `dot commit ...`).
 
 ### Manual Git Operations
