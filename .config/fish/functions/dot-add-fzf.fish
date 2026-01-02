@@ -30,8 +30,21 @@ function dot-add-fzf --description 'FZF-based TUI to add unmanaged files to dotf
 
     # Launch fzf in HOME
     pushd $HOME
+    
+    # Get tracked files
+    # Using a variable to check if anything is tracked
+    set -l tracked_files (git --git-dir=$DOTFILES_DIR --work-tree=$HOME ls-files)
+    
     # -m: multi-select
-    set -l selected_files (eval $lister | fzf -m --preview "$previewer")
+    set -l selected_files
+    if test -n "$tracked_files"
+        # Filter and launch fzf
+        # psub must be used directly in the command argument to stay alive during execution
+        set selected_files (eval $lister | grep -v -F -x -f (printf "%s\n" $tracked_files | psub) | fzf -m --preview "$previewer")
+    else
+        # If no files are tracked, show everything (skip grep)
+        set selected_files (eval $lister | fzf -m --preview "$previewer")
+    end
     popd
 
     if test -n "$selected_files"
