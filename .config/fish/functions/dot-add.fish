@@ -1,10 +1,12 @@
 function dot-add --description 'Interactive TUI to add unmanaged files to dotfiles (fzf-based)'
     set -q DOTFILES_DIR; or set -Ux DOTFILES_DIR $HOME/.dotfiles.git
 
-    # Check for fzf
-    if not command -sq fzf
-        echo "Error: fzf is not installed."
-        return 1
+    # Check dependencies
+    for cmd in fzf fd
+        if not command -sq $cmd
+            echo "Error: $cmd is not installed."
+            return 1
+        end
     end
 
     # Define listers
@@ -18,13 +20,8 @@ function dot-add --description 'Interactive TUI to add unmanaged files to dotfil
     end
     if test (count $default_paths) -eq 0; set default_paths "."; end
 
-    if command -sq fd
-        set lister_default "fd --hidden --exclude .git --exclude '*.git' --type f . $default_paths"
-        set lister_all "fd --hidden --exclude .git --exclude '*.git' --type f"
-    else
-        set lister_default "find $default_paths -maxdepth 4 -not -path '*/.*' -type f"
-        set lister_all "find . -maxdepth 4 -not -path '*/.*' -type f"
-    end
+    set lister_default "fd --hidden --exclude .git --exclude '*.git' --type f . $default_paths"
+    set lister_all "fd --hidden --exclude .git --exclude '*.git' --type f"
 
     # Define previewer
     set -l previewer

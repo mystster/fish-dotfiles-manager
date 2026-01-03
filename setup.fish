@@ -94,6 +94,7 @@ end
 check_dependency git
 check_dependency lazygit
 check_dependency fzf
+check_dependency fd
 
 echo "Fish Dotfiles Manager Setup"
 echo "---------------------------"

@@ -6,8 +6,8 @@ A simple, robust dotfiles management tool for Fish shell users, leveraging a bar
 
 - **Shell**: `fish`
 - **Core**: `git`
-- **UI**: `lazygit`, `fzf`
-- **Utilities**: `fd` (recommended), `bat` (optional, for preview)
+- **UI**: `lazygit`, `fzf`, `fd`
+- **Utilities**: `bat` (optional, for preview)
 
 ## Features
 
@@ -27,7 +27,7 @@ A simple, robust dotfiles management tool for Fish shell users, leveraging a bar
 ## Installation / Setup
 
 ### Prerequisites
-Ensure `git`, `fish`, `fzf`, and `lazygit` are installed (the setup script will attempt to install them using `pacman` if missing).
+Ensure `git`, `fish`, `fzf`, `fd`, and `lazygit` are installed (the setup script will attempt to install them using `pacman` if missing).
 
 ### One-liner Installation
 
