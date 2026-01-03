@@ -13,9 +13,12 @@ function dot-add --description 'Interactive TUI to add unmanaged files to dotfil
     set -l lister_default
     set -l lister_all
     
+    # Use configurable default paths (fallback to .config if not set)
+    set -q DOTFILES_DEFAULT_PATHS; or set -Ux DOTFILES_DEFAULT_PATHS .config
+
     # Check which directories exist
     set -l default_paths
-    for d in .config .local/share
+    for d in $DOTFILES_DEFAULT_PATHS
         if test -d $HOME/$d; set -a default_paths $d; end
     end
     if test (count $default_paths) -eq 0; set default_paths "."; end

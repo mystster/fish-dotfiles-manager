@@ -43,6 +43,19 @@ The script will prompt you to:
 2.  **Clone existing repository**: Clones your repo and sets up the environment.
 3.  **Update tools**: Synchronizes local scripts with the latest versions from the repository and removes obsolete files automatically.
 
+## Configuration
+
+The following universal variables can be used to customize the behavior of the tools:
+
+- **`DOTFILES_DEFAULT_PATHS`**: A list of directories (relative to `$HOME`) that `dot-add` scans by default before toggling to a full home search.
+  - **Default**: `.config`
+  - **Example**: To scan both `.config` and `.ssh` by default:
+    ```fish
+    set -Ux DOTFILES_DEFAULT_PATHS .config .ssh
+    ```
+- **`DOTFILES_DIR`**: The location of the bare git repository.
+  - **Default**: `~/.dotfiles.git`
+
 ## Usage
 
 ### Managing Files
