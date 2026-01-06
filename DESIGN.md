@@ -20,7 +20,7 @@ To avoid polluting the repository with unrelated home directory files, we adopt 
     ```
 - **`*`**: Ignores everything by default.
 - **`!*/`**: Un-ignores directories. This is **critical** because Git cannot track a file if its parent directory is ignored. This allows Git to traverse the directory tree.
-- Only files explicitly "added" are tracked by appending `!path/to/file` to `.gitignore`.
+- Only files explicitly "added" are tracked by appending `!/path/to/file` (anchored to the repository root) to `.gitignore`. The leading slash is used to prevent ambiguous matches in subdirectories.
 
 ## 3. Technology Stack & Dependencies
 
@@ -58,7 +58,7 @@ repo_root/
     - **Directory Toggle**: `Ctrl-R` switches between a focused view (`.config`, `.local/share`) and a full home search.
     - **Automatic Filtering**: Always excludes files already tracked by the Git repository.
 - **`_dot_add_helper`**: Invoked by `dot-add` with one or more file paths.
-    - Updates `.gitignore` to whitelist the files (`!filename`).
+    - Updates `.gitignore` to whitelist the files using root-anchored paths (`!/filename`).
     - Stages the target files and the updated `.gitignore` in the Git repository.
 
 ### Configuration
@@ -83,6 +83,7 @@ Initially, `broot` was chosen for its tree-style exploration. However, based on 
 - **Robust Variables**: Use universal variables (`-Ux`) to preserve configuration across shell sessions.
 - **Directory Politeness**: Use `pushd`/`popd` instead of `cd` in functions to respect the user's working directory stack.
 - **Verification Before Commit**: Detailed explanation and approval required before making non-trivial changes to the repository.
+- **Documentation Synchronization**: README.md and DESIGN.md must be updated simultaneously upon completion of any code changes or bug fixes to ensure documentation stays in sync with the implementation.
 
 ## 7. Future Improvements
 - Support for multiple package managers (beyond `pacman`).

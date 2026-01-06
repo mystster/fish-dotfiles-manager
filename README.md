@@ -61,7 +61,7 @@ The following universal variables can be used to customize the behavior of the t
 ### Managing Files
 - **Add new file**: 
   - Run `dot-add`: Fuzzy-find unmanaged files. Toggle view with `Ctrl-r`.
-  - Automatically updates `.gitignore` (un-ignores the file) and stages the changes.
+  - Automatically updates `.gitignore` (un-ignores the file using root-anchored paths) and stages the changes.
 - **Commit changes**: Run `dot-lazy` (or `dot commit ...`).
 
 ### Manual Git Operations
