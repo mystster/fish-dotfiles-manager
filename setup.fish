@@ -53,9 +53,9 @@ function update_tools
     log "Updating managed tools..."
     for tool in $managed_tools
         download_file $tool "$HOME/$tool"
-        # Update .gitignore if not already whitelisted
-        if not grep -Fq "!$tool" "$HOME/.gitignore"
-            echo "!$tool" >> "$HOME/.gitignore"
+        # Update .gitignore if not already whitelisted (anchored to root)
+        if not grep -Fq "!/$tool" "$HOME/.gitignore"
+            echo "!/$tool" >> "$HOME/.gitignore"
         end
         # Stage in git if repo exists
         if test -d $DOTFILES_DIR
@@ -79,10 +79,11 @@ function cleanup_tools
                 git --git-dir=$DOTFILES_DIR --work-tree=$HOME rm --ignore-unmatch "$full_path"
             end
         end
-        # Remove from .gitignore if exists
+        # Remove from .gitignore if exists (checking both anchored and non-anchored for robustness)
         if test -f "$HOME/.gitignore"
-            # Remove the exact line "!$tool"
+            # Remove both variations
             sed -i "\|^!$tool\$|d" "$HOME/.gitignore"
+            sed -i "\|^!/$tool\$|d" "$HOME/.gitignore"
         end
     end
     # Ensure .gitignore changes are staged
@@ -127,7 +128,7 @@ if test "$option" = "1"
         log "Created .gitignore with * and !*/"
     end
     
-    echo "!.gitignore" >> "$HOME/.gitignore"
+    echo "!/.gitignore" >> "$HOME/.gitignore"
     
     # Download and Stage Tools
     update_tools

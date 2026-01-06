@@ -14,10 +14,16 @@ function _dot_add_helper --description 'Helper to add files to dotfiles and whit
     end
 
     for target_file in $argv
+        # Ensure path starts with / for gitignore specificity
+        set -l anchored_path "$target_file"
+        if not string match -q "/*" "$target_file"
+            set anchored_path "/$target_file"
+        end
+
         # Check if already whitelisted
-        if not grep -Fq "!$target_file" $gitignore_file
-            echo "!$target_file" >> $gitignore_file
-            echo "Whitelisted $target_file"
+        if not grep -Fq "!$anchored_path" $gitignore_file
+            echo "!$anchored_path" >> $gitignore_file
+            echo "Whitelisted $anchored_path"
         end
 
         # Add file
