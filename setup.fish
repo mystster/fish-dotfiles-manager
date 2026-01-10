@@ -6,15 +6,28 @@ set LOG_FILE "setup.log"
 # Configuration (Update these for your fork)
 set REPO_USER "mystster"
 set REPO_NAME "fish-dotfiles-manager"
-set REPO_BRANCH "main"
+# TODO: Revert to 'main' before merge
+set REPO_BRANCH "feat/gemini-integration"
 set RAW_BASE_URL "https://raw.githubusercontent.com/$REPO_USER/$REPO_NAME/$REPO_BRANCH"
+
+# Warning for dev branch
+if test "$REPO_BRANCH" != "main"
+    set_color red
+    echo "WARNING: You are on a development branch ($REPO_BRANCH)."
+    echo "Do not merge to main without reverting REPO_BRANCH to 'main'."
+    set_color normal
+    sleep 2
+end
 
 # Tool definitions
 set managed_tools \
     ".config/fish/functions/dot.fish" \
     ".config/fish/functions/dot-lazy.fish" \
     ".config/fish/functions/dot-add.fish" \
-    ".config/fish/functions/_dot_add_helper.fish"
+    ".config/fish/functions/_dot_add_helper.fish" \
+    ".config/fish/functions/_dot_gemini_api.fish" \
+    ".config/fish/functions/dot-commit-ai.fish" \
+    ".config/fish/functions/dot-ai.fish"
 
 set obsolete_tools \
     ".config/fish/functions/dot-add-fzf.fish" \
@@ -92,17 +105,33 @@ function cleanup_tools
     end
 end
 
+function configure_gemini
+    echo "Configuring Gemini API Key..."
+    echo "You need an API key from Google AI Studio: https://aistudio.google.com/"
+    read -P "Enter your Gemini API Key: " api_key < /dev/tty
+    
+    if test -n "$api_key"
+        set -Ux GEMINI_API_KEY "$api_key"
+        log "Gemini API Key configured."
+    else
+        log "Skipped API Key configuration."
+    end
+end
+
 check_dependency git
 check_dependency lazygit
 check_dependency fzf
 check_dependency fd
+check_dependency curl
+check_dependency jq
 
 echo "Fish Dotfiles Manager Setup"
 echo "---------------------------"
 echo "1. Initialize new repository (starts with whitelist mode)"
 echo "2. Clone existing repository"
 echo "3. Update tools (Download latest and cleanup)"
-read -P "Select option (1/2/3): " option < /dev/tty
+echo "4. Configure Gemini API Key"
+read -P "Select option (1/2/3/4): " option < /dev/tty
 
 if test "$option" = "1"
     if test -d $DOTFILES_DIR
@@ -133,6 +162,9 @@ if test "$option" = "1"
     # Download and Stage Tools
     update_tools
     cleanup_tools
+
+    # Ask for API Key
+    configure_gemini
 
     if git --git-dir=$DOTFILES_DIR --work-tree=$HOME commit -m "Initial commit: Add whitelist and dotfiles tools"
         log "Committed initial dotfiles"
@@ -227,6 +259,10 @@ else if test "$option" = "2"
     end
     
     set -Ux DOTFILES_DIR $DOTFILES_DIR
+    configure_gemini
+
+else if test "$option" = "4"
+    configure_gemini
 
 else
     echo "Invalid option"

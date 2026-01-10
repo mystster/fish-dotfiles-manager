@@ -7,6 +7,7 @@ A simple, robust dotfiles management tool for Fish shell users, leveraging a bar
 - **Shell**: `fish`
 - **Core**: `git`
 - **UI**: `lazygit`, `fzf`, `fd`
+- **AI**: `curl`, `jq` (required for Gemini features)
 - **Utilities**: `bat` (optional, for preview)
 
 ## Features
@@ -63,6 +64,16 @@ The following universal variables can be used to customize the behavior of the t
   - Run `dot-add`: Fuzzy-find unmanaged files. Toggle view with `Ctrl-r`.
   - Automatically updates `.gitignore` (un-ignores the file using root-anchored paths) and stages the changes.
 - **Commit changes**: Run `dot-lazy` (or `dot commit ...`).
+- **AI Features**:
+  - `dot-commit-ai`: Automatically generates a conventional commit message for staged changes.
+  - `dot-ai "prompt"`: Asks Gemini to generate or modify dotfiles based on your prompt (e.g., `dot-ai "alias for ls -la"`).
+
+### AI Integration (Gemini)
+To enable AI features:
+1.  Run `setup.fish` and select option `4. Configure Gemini API Key`.
+2.  Enter your key from [Google AI Studio](https://aistudio.google.com/).
+
+The tool uses `gemini-3-flash` for fast responses (commit messages) and `gemini-3-pro` for complex tasks (dotfile generation).
 
 ### Manual Git Operations
 Use the `dot` command just like `git`:

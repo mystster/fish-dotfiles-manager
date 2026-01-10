@@ -31,6 +31,7 @@ To avoid polluting the repository with unrelated home directory files, we adopt 
 | **TUI (Git)** | `lazygit` | Visual interface for committing, staging, and reviewing changes. |
 | **TUI (Files)** | `fzf` | Interactive fuzzy finder used to browse *unmanaged* files and add them to the repo. |
 | **Utilities** | `fd`, `bat`, `sort` | High-performance file searching, syntax-highlighted previews, and organized listing. |
+| **AI Integration** | `curl`, `jq` | Used to communicate with Google Gemini API safely. |
 | **Package Manager** | `pacman` | Used in `setup.fish` to verify and install dependencies (Arch Linux specific). |
 
 ## 4. Architecture & Components
@@ -57,9 +58,12 @@ repo_root/
     - **Hybrid Sorting**: Initial listing is alphabetical (A-Z); searching re-sorts by fuzzy relevance.
     - **Directory Toggle**: `Ctrl-R` switches between a focused view (`.config`, `.local/share`) and a full home search.
     - **Automatic Filtering**: Always excludes files already tracked by the Git repository.
-- **`_dot_add_helper`**: Invoked by `dot-add` with one or more file paths.
     - Updates `.gitignore` to whitelist the files using root-anchored paths (`!/filename`).
     - Stages the target files and the updated `.gitignore` in the Git repository.
+- **`dot-commit-ai`**: Generates conventional commit messages using Gemini Flash.
+- **`dot-ai`**: Generates or modifies dotfiles using Gemini Pro.
+    - **Context Awareness**: Scans the repository structure and reads content of relevant tracked files to understand the user's specific configuration style before making suggestions.
+    - **Safety**: Outputs JSON to avoid parsing errors and asks for user confirmation before applying changes.
 
 ### Configuration
 - **Environment Variable**: `DOTFILES_DIR` stores the location of the bare repo.
