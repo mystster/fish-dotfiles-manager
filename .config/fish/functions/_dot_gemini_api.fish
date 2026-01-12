@@ -1,10 +1,10 @@
 function _dot_gemini_api
     set -l prompt $argv[1]
-    set -l model $argv[2] # Optional, defaults to gemini-2.0-flash-exp (latest stable/fast)
+    set -l model $argv[2] # Optional, defaults to gemini-3-flash-preview
     
     # Default model if not provided
     if test -z "$model"
-        set model "gemini-3-flash" 
+        set model "gemini-3-flash-preview" 
     end
 
     if not set -q GEMINI_API_KEY

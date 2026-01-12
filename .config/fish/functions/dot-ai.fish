@@ -59,7 +59,7 @@ function dot-ai
     set -l full_prompt "$system_instructions\n\nUSER PROMPT: $prompt"
     
     echo "Asking Gemini..."
-    set -l response (_dot_gemini_api "$full_prompt" "gemini-3-pro")
+    set -l response (_dot_gemini_api "$full_prompt" "gemini-3-pro-preview")
 
     if test $status -ne 0
         echo "AI Request Failed."

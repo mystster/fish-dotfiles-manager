@@ -23,8 +23,8 @@ function dot-commit-ai
     set -l full_prompt "$system_instructions\n\nUSER PROMPT: $user_prompt"
 
     # Call Gemini API
-    # Using gemini-3-flash for speed
-    set -l commit_msg (_dot_gemini_api "$full_prompt" "gemini-3-flash")
+    # Using gemini-3-flash-preview for speed
+    set -l commit_msg (_dot_gemini_api "$full_prompt" "gemini-3-flash-preview")
 
     if test $status -ne 0
         echo "Failed to generate commit message."
