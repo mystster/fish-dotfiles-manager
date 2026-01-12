@@ -1,20 +1,26 @@
 function dot-commit-ai
+    set -l commit_mode "staged"
+    set -l diff_content ""
+
     # Check if there are staged changes
     if not dot diff --cached --quiet
-        # There are changes
+        # There are staged changes
+        set diff_content (dot diff --cached)
     else
-        echo "No staged changes to commit."
-        return 1
+        # No staged changes, check for unstaged changes
+        if not dot diff --quiet
+             # There are unstaged changes
+             echo "No staged changes found. Using unstaged changes..."
+             set commit_mode "all"
+             set diff_content (dot diff)
+        else
+             echo "No changes to commit."
+             return 1
+        end
     end
 
     echo "Generating commit message..."
-
-    # clear screen for better visibility 
-    # (Optional, maybe just a newline is better to keep context)
     echo ""
-
-    # Get the diff
-    set -l diff_content (dot diff --cached)
 
     # Prompt construction
     set -l system_instructions "You are a specialized commit message generator. Your ONLY job is to describe the changes in the provided diff. Do NOT hallucinate features or context not present in the diff. Do NOT mention 'AI', 'Gemini', or 'dotfiles manager' unless these specific words are added or modified in the code."
@@ -43,11 +49,19 @@ function dot-commit-ai
     read -P "Commit with this message? (y/n/e[dit]): " confirm < /dev/tty
 
     if test "$confirm" = "y"
-        dot commit -m "$commit_msg"
+        if test "$commit_mode" = "all"
+            dot commit -a -m "$commit_msg"
+        else
+            dot commit -m "$commit_msg"
+        end
     else if test "$confirm" = "e"
         read -P "Enter new commit message: " manual_msg < /dev/tty
         if test -n "$manual_msg"
-            dot commit -m "$manual_msg"
+            if test "$commit_mode" = "all"
+                dot commit -a -m "$manual_msg"
+            else
+                dot commit -m "$manual_msg"
+            end
         else
             echo "Commit aborted (empty message)."
         end
