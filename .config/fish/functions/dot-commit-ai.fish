@@ -17,8 +17,8 @@ function dot-commit-ai
     set -l diff_content (dot diff --cached)
 
     # Prompt construction
-    set -l system_instructions "You are a helpful assistant that generates conventional commit messages."
-    set -l user_prompt "Generate a single line commit message following Conventional Commits specification (e.g., 'feat: add feature', 'fix: resolve bug') based on the following diff. Only return the commit message itself, nothing else.\n\nDiff:\n$diff_content"
+    set -l system_instructions "You are a specialized commit message generator. Your ONLY job is to describe the changes in the provided diff. Do NOT hallucinate features or context not present in the diff. Do NOT mention 'AI', 'Gemini', or 'dotfiles manager' unless these specific words are added or modified in the code."
+    set -l user_prompt "Generate a single line commit message following Conventional Commits specification (e.g., 'feat: add feature', 'fix: resolve bug') based EXCLUSIVELY on the following diff. Ignore any file path context unless relevant to the change. Only return the commit message itself, nothing else.\n\nDiff:\n$diff_content"
 
     set -l full_prompt "$system_instructions\n\nUSER PROMPT: $user_prompt"
 
