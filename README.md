@@ -65,7 +65,7 @@ The following universal variables can be used to customize the behavior of the t
   - Automatically updates `.gitignore` (un-ignores the file using root-anchored paths) and stages the changes.
 - **Commit changes**: Run `dot-lazy` (or `dot commit ...`).
 - **AI Features**:
-  - `dot-commit-ai`: Automatically generates a conventional commit message for staged changes.
+  - `dot-commit-ai`: Automatically generates a conventional commit message. Supports generating for unstaged changes (via `commit -a`) if no staged changes exist.
   - `dot-ai "prompt"`: Asks Gemini to generate or modify dotfiles based on your prompt (e.g., `dot-ai "alias for ls -la"`).
 
 ### AI Integration (Gemini)
@@ -73,7 +73,7 @@ To enable AI features:
 1.  Run `setup.fish` and select option `4. Configure Gemini API Key`.
 2.  Enter your key from [Google AI Studio](https://aistudio.google.com/).
 
-The tool uses `gemini-3-flash` for fast responses (commit messages) and `gemini-3-pro` for complex tasks (dotfile generation).
+The tool uses `gemini-3-flash-preview` for fast responses (commit messages) and `gemini-3-pro-preview` for complex tasks (dotfile generation). It includes automatic retry logic for transient API issues.
 
 ### Manual Git Operations
 Use the `dot` command just like `git`:

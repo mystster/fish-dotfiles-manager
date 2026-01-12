@@ -60,7 +60,7 @@ repo_root/
     - **Automatic Filtering**: Always excludes files already tracked by the Git repository.
     - Updates `.gitignore` to whitelist the files using root-anchored paths (`!/filename`).
     - Stages the target files and the updated `.gitignore` in the Git repository.
-- **`dot-commit-ai`**: Generates conventional commit messages using Gemini Flash.
+- **`dot-commit-ai`**: Generates conventional commit messages using Gemini Flash. Falls back to unstaged changes if the staging area is empty.
 - **`dot-ai`**: Generates or modifies dotfiles using Gemini Pro.
     - **Context Awareness**: Scans the repository structure and reads content of relevant tracked files to understand the user's specific configuration style before making suggestions.
     - **Safety**: Outputs JSON to avoid parsing errors and asks for user confirmation before applying changes.
