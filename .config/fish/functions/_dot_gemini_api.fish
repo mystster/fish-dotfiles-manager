@@ -23,10 +23,37 @@ function _dot_gemini_api
     # structure: { contents: [{ parts: [{ text: "prompt" }] }] }
     set -l json_payload (jq -n --arg txt "$prompt" '{contents: [{parts: [{text: $txt}]}]}')
 
-    # Execute curl request
-    set -l response (curl -s -H 'Content-Type: application/json' \
-        -d "$json_payload" \
-        "$api_url")
+    # Execute curl request with retry
+    set -l response
+    set -l max_retries 3
+    set -l attempt 1
+    
+    while test $attempt -le $max_retries
+        set response (curl -s -H 'Content-Type: application/json' \
+            -d "$json_payload" \
+            "$api_url")
+            
+        # Check if response contains candidates (success)
+        if echo "$response" | grep -q "candidates"
+            break
+        end
+
+        # Check if it is a specific error that is worth retrying
+        # "Visibility check was unavailable" or 503s often come as error json
+        set -l err_msg (echo "$response" | jq -r '.error.message // empty')
+        if test -n "$err_msg"
+             echo "API Error (Attempt $attempt/$max_retries): $err_msg" >&2
+        else if test -z "$response"
+             echo "No response (Attempt $attempt/$max_retries)" >&2
+        end
+        
+        if test $attempt -lt $max_retries
+            set attempt (math $attempt + 1)
+            sleep 2
+        else
+            break
+        end
+    end
 
     # Check for curl error (empty response)
     if test -z "$response"
