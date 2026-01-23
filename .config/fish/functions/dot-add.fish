@@ -44,7 +44,8 @@ function dot-add --description 'Interactive TUI to add unmanaged files to dotfil
     set -l filter_cmd 'grep -v -F -x -f (git --git-dir=$DOTFILES_DIR --work-tree=$HOME ls-files | psub) | sort'
 
     # Launch fzf in HOME
-    pushd $HOME
+    set -l old_pwd $PWD
+    builtin cd $HOME
     
     # fzf with dynamic reload
     # --layout=reverse: puts prompt at top, first line of input at top (A-Z top-down)
@@ -56,7 +57,7 @@ function dot-add --description 'Interactive TUI to add unmanaged files to dotfil
         --preview "$previewer")
     
     set -l fzf_status $status
-    popd
+    builtin cd $old_pwd
 
     # Cleanup temp file
     rm -f $state_file
