@@ -63,7 +63,6 @@ function dot-add --description 'Interactive TUI to add unmanaged files to dotfil
         --preview "$previewer")
     
     set -l fzf_status $status
-    popd
 
     # Cleanup temp file
     rm -f $state_file
@@ -74,4 +73,6 @@ function dot-add --description 'Interactive TUI to add unmanaged files to dotfil
     else
         echo "No files selected."
     end
+    
+    popd
 end
