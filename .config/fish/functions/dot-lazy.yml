@@ -1,0 +1,7 @@
+customCommands:
+  - key: 'I'
+    command: "dot-commit-ai"
+    context: 'global'
+    loadingText: "Generate commit message..."
+    description: "generate commit message using Gemini"
+    output: "terminal"
