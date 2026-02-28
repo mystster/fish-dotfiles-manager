@@ -1,4 +1,11 @@
 function dot-add --description 'Interactive TUI to add unmanaged files to dotfiles (fzf-based)'
+    # skip auto ls
+    set -q autols_cmd; and set -g _autols_nowrap 1
+    function _cleanup_dot_add --on-event fish_postexec
+        set -e _autols_nowrap
+        functions -e _cleanup_dot_add
+    end
+    
     set -q DOTFILES_DIR; or set -Ux DOTFILES_DIR $HOME/.dotfiles.git
 
     # Check dependencies
@@ -56,7 +63,6 @@ function dot-add --description 'Interactive TUI to add unmanaged files to dotfil
         --preview "$previewer")
     
     set -l fzf_status $status
-    popd
 
     # Cleanup temp file
     rm -f $state_file
@@ -67,4 +73,6 @@ function dot-add --description 'Interactive TUI to add unmanaged files to dotfil
     else
         echo "No files selected."
     end
+    
+    popd
 end
