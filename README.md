@@ -70,7 +70,7 @@ The following universal variables can be used to customize the behavior of the t
   - Automatically updates `.gitignore` (un-ignores the file using root-anchored paths) and stages the changes.
 - **Commit changes**: Run `dot-lazy` (or `dot commit ...`).
 - **AI Features**:
-  - `dot-commit-ai`: Automatically generates a conventional commit message. Supports generating for unstaged changes (via `commit -a`) if no staged changes exist.
+  - `dot-commit-ai`: Automatically generates a conventional commit message. Supports generating for unstaged changes (via `commit -a`) if no staged changes exist. Can be triggered directly within `dot-lazy` (via the `I` shortcut) to copy the message to the clipboard seamlessly.
   - `dot-ai "prompt"`: Asks Gemini to generate or modify dotfiles based on your prompt (e.g., `dot-ai "alias for ls -la"`).
 
 ### AI Integration (Gemini)
