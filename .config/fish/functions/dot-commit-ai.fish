@@ -3,10 +3,9 @@ function dot-commit-ai
     set -l diff_content ""
     set -l copy_to_clipboard 0
 
-    for arg in $argv
-        if test "$arg" = "--clipboard"
-            set copy_to_clipboard 1
-        end
+    argparse --name=dot-commit-ai 'clipboard' -- $argv
+    if set -q _flag_clipboard
+        set copy_to_clipboard 1
     end
 
     # Check if there are staged changes
