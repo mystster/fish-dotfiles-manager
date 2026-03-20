@@ -27,7 +27,6 @@ set RAW_BASE_URL "https://raw.githubusercontent.com/$REPO_USER/$REPO_NAME/$REPO_
 if test "$REPO_BRANCH" != "main"
     set_color red
     echo "WARNING: You are on a development branch ($REPO_BRANCH)."
-    echo "Do not merge to main without reverting REPO_BRANCH to 'main'."
     set_color normal
     sleep 2
 end
