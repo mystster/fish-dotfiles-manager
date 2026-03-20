@@ -1,6 +1,6 @@
 customCommands:
   - key: 'I'
-    command: "dot-commit-ai --clipboard"
+    command: 'dot-commit-ai --out-file "$(git rev-parse --absolute-git-dir)/LAZYGIT_PENDING_COMMIT" --overwrite'
     context: 'global'
     loadingText: "Generate commit message..."
     description: "generate commit message using Gemini and copy to clipboard"

@@ -1,12 +1,24 @@
 function dot-commit-ai
     set -l commit_mode "staged"
     set -l diff_content ""
-    set -l copy_to_clipboard 0
-
-    argparse --name=dot-commit-ai 'clipboard' -- $argv
-    if set -q _flag_clipboard
-        set copy_to_clipboard 1
+    argparse --name=dot-commit-ai 'out-file=' 'overwrite' 'append' -- $argv
+    
+    if not set -q _flag_out_file
+        echo "Error: --out-file is required."
+        return 1
     end
+
+    if set -q _flag_overwrite; and set -q _flag_append
+        echo "Error: Cannot specify both --overwrite and --append."
+        return 1
+    end
+
+    if not set -q _flag_overwrite; and not set -q _flag_append
+        echo "Error: Must specify either --overwrite or --append."
+        return 1
+    end
+
+    set -l out_file $_flag_out_file
 
     # Check if there are staged changes
     if not dot diff --cached --quiet
@@ -46,52 +58,13 @@ function dot-commit-ai
     # Sanitize message (remove newlines if any, though prompt asks for single line)
     set commit_msg (string trim $commit_msg)
 
-    if test $copy_to_clipboard -eq 1
-        set -l copied 0
-        if command -v wl-copy > /dev/null
-            echo "$commit_msg" | wl-copy >/dev/null 2>&1
-            set copied 1
-        else if command -v xclip > /dev/null
-            echo "$commit_msg" | xclip -selection clipboard >/dev/null 2>&1
-            set copied 1
-        end
-
-        if test $copied -eq 1
-            echo "AI Commit message copied to clipboard!"
-            echo "Use 'c' in lazygit to paste and commit."
-        else
-            echo "No clipboard utility (wl-copy or xclip) found."
-            echo "Generated message: $commit_msg"
-        end
-        return 0
-    end
-
-    # Display and Confirm
-    echo "--------------------------------------------------"
-    echo "Proposed Commit Message:"
-    echo "$commit_msg"
-    echo "--------------------------------------------------"
-    
-    read -P "Commit with this message? (y/n/e[dit]): " confirm < /dev/tty
-
-    if test "$confirm" = "y"
-        if test "$commit_mode" = "all"
-            dot commit -a -m "$commit_msg"
-        else
-            dot commit -m "$commit_msg"
-        end
-    else if test "$confirm" = "e"
-        read -P "Enter new commit message: " manual_msg < /dev/tty
-        if test -n "$manual_msg"
-            if test "$commit_mode" = "all"
-                dot commit -a -m "$manual_msg"
-            else
-                dot commit -m "$manual_msg"
-            end
-        else
-            echo "Commit aborted (empty message)."
-        end
+    if set -q _flag_overwrite
+        echo "$commit_msg" > "$out_file"
     else
-        echo "Commit aborted."
+        echo "$commit_msg" >> "$out_file"
     end
+
+    echo "AI Commit message written to $out_file"
+    echo "Use 'c' in lazygit to paste and commit."
+    return 0
 end
