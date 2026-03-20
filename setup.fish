@@ -11,12 +11,13 @@ set REPO_NAME "fish-dotfiles-manager"
 if set -q SETUP_BRANCH
     set REPO_BRANCH "$SETUP_BRANCH"
 else if test -d ".git"; and git remote -v 2>/dev/null | grep -q "$REPO_NAME"
-    set REPO_BRANCH (git rev-parse --abbrev-ref HEAD 2>/dev/null)
+    set -l current_branch (git rev-parse --abbrev-ref HEAD 2>/dev/null)
+    if test -n "$current_branch"; and test "$current_branch" != "HEAD"
+        set REPO_BRANCH "$current_branch"
+    else
+        set REPO_BRANCH "main"
+    end
 else
-    set REPO_BRANCH "main"
-end
-
-if test -z "$REPO_BRANCH"
     set REPO_BRANCH "main"
 end
 
