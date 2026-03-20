@@ -47,12 +47,16 @@ function dot-commit-ai
     set commit_msg (string trim $commit_msg)
 
     if test $copy_to_clipboard -eq 1
+        set -l copied 0
         if command -v wl-copy > /dev/null
             echo "$commit_msg" | wl-copy
-            echo "AI Commit message copied to clipboard!"
-            echo "Use 'c' in lazygit to paste and commit."
+            set copied 1
         else if command -v xclip > /dev/null
             echo "$commit_msg" | xclip -selection clipboard
+            set copied 1
+        end
+
+        if test $copied -eq 1
             echo "AI Commit message copied to clipboard!"
             echo "Use 'c' in lazygit to paste and commit."
         else
