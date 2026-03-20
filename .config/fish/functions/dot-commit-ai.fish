@@ -3,22 +3,19 @@ function dot-commit-ai
     set -l diff_content ""
     argparse --name=dot-commit-ai 'out-file=' 'overwrite' 'append' -- $argv
     
-    if not set -q _flag_out_file
-        echo "Error: --out-file is required."
-        return 1
-    end
+    if set -q _flag_out_file
+        if set -q _flag_overwrite; and set -q _flag_append
+            echo "Error: Cannot specify both --overwrite and --append."
+            return 1
+        end
 
-    if set -q _flag_overwrite; and set -q _flag_append
-        echo "Error: Cannot specify both --overwrite and --append."
-        return 1
-    end
+        if not set -q _flag_overwrite; and not set -q _flag_append
+            echo "Error: Must specify either --overwrite or --append."
+            return 1
+        end
 
-    if not set -q _flag_overwrite; and not set -q _flag_append
-        echo "Error: Must specify either --overwrite or --append."
-        return 1
+        set -f out_file $_flag_out_file
     end
-
-    set -l out_file $_flag_out_file
 
     # Check if there are staged changes
     if not dot diff --cached --quiet
@@ -58,13 +55,44 @@ function dot-commit-ai
     # Sanitize message (remove newlines if any, though prompt asks for single line)
     set commit_msg (string trim $commit_msg)
 
-    if set -q _flag_overwrite
-        echo "$commit_msg" > "$out_file"
-    else
-        echo "$commit_msg" >> "$out_file"
+    if set -q _flag_out_file
+        if set -q _flag_overwrite
+            echo "$commit_msg" > "$out_file"
+        else
+            echo "$commit_msg" >> "$out_file"
+        end
+
+        echo "AI Commit message written to $out_file"
+        echo "Use 'c' in lazygit to paste and commit."
+        return 0
     end
 
-    echo "AI Commit message written to $out_file"
-    echo "Use 'c' in lazygit to paste and commit."
-    return 0
+    # Display and Confirm
+    echo "--------------------------------------------------"
+    echo "Proposed Commit Message:"
+    echo "$commit_msg"
+    echo "--------------------------------------------------"
+    
+    read -P "Commit with this message? (y/n/e[dit]): " confirm < /dev/tty
+
+    if test "$confirm" = "y"
+        if test "$commit_mode" = "all"
+            dot commit -a -m "$commit_msg"
+        else
+            dot commit -m "$commit_msg"
+        end
+    else if test "$confirm" = "e"
+        read -P "Enter new commit message: " manual_msg < /dev/tty
+        if test -n "$manual_msg"
+            if test "$commit_mode" = "all"
+                dot commit -a -m "$manual_msg"
+            else
+                dot commit -m "$manual_msg"
+            end
+        else
+            echo "Commit aborted (empty message)."
+        end
+    else
+        echo "Commit aborted."
+    end
 end
