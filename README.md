@@ -38,6 +38,11 @@ curl -sL https://raw.githubusercontent.com/mystster/fish-dotfiles-manager/main/s
 
 > **Note**: This will install the dotfiles management tools. You can simply verify the installation and start managing your files.
 
+To install or test a specific feature branch, you can pass the branch name via the `SETUP_BRANCH` environment variable:
+```fish
+curl -sL https://raw.githubusercontent.com/mystster/fish-dotfiles-manager/feature-branch/setup.fish | env SETUP_BRANCH=feature-branch fish
+```
+
 ### Interactive Setup
 The script will prompt you to:
 1.  **Initialize new repository**: Creates a bare repo, whitelisted `.gitignore`, and downloads the necessary tool functions (`dot`, `dot-add`, etc.) from GitHub.

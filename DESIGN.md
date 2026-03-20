@@ -82,6 +82,9 @@ Initially, `broot` was chosen for its tree-style exploration. However, based on 
 - **Update Logic**: Option `3. Update tools` synchronizes local scripts with the latest GitHub versions.
 - **Automated Cleanup**: The script automatically removes legacy files (like `dot-add-fzf.fish` or `broot.conf.hjson`) and handles Git index purging, ensuring the user's environment stays clean and synchronized with the project's evolution.
 
+### Setup Script Branch Detection
+To prevent hardcoding the repository branch in `setup.fish` while supporting the one-liner installation workflow, the script dynamically determines the download branch. By default, it uses `main`. It also checks for the `SETUP_BRANCH` environment variable to allow manual overrides, and detects if it is executed within the `fish-dotfiles-manager` repository to automatically use the current local branch. This ensures seamless branch testing and tool updates during development.
+
 ## 6. User-Requested Policies
 - **Minimize User Input**: Automated setup with reasonable defaults.
 - **Robust Variables**: Use universal variables (`-Ux`) to preserve configuration across shell sessions.
