@@ -49,10 +49,10 @@ function dot-commit-ai
     if test $copy_to_clipboard -eq 1
         set -l copied 0
         if command -v wl-copy > /dev/null
-            echo "$commit_msg" | wl-copy
+            echo "$commit_msg" | wl-copy >/dev/null 2>&1
             set copied 1
         else if command -v xclip > /dev/null
-            echo "$commit_msg" | xclip -selection clipboard
+            echo "$commit_msg" | xclip -selection clipboard >/dev/null 2>&1
             set copied 1
         end
 

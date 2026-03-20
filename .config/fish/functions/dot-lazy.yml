@@ -4,4 +4,4 @@ customCommands:
     context: 'global'
     loadingText: "Generate commit message..."
     description: "generate commit message using Gemini and copy to clipboard"
-    showOutput: true
+    output: "log"
