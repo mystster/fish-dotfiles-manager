@@ -6,8 +6,20 @@ set LOG_FILE "setup.log"
 # Configuration (Update these for your fork)
 set REPO_USER "mystster"
 set REPO_NAME "fish-dotfiles-manager"
-# TODO: Revert to 'main' before merge
-set REPO_BRANCH "feat/gemini-integration"
+
+# Determine the branch to use for downloading tools
+if set -q SETUP_BRANCH
+    set REPO_BRANCH "$SETUP_BRANCH"
+else if test -d ".git"; and git remote -v 2>/dev/null | grep -q "$REPO_NAME"
+    set REPO_BRANCH (git rev-parse --abbrev-ref HEAD 2>/dev/null)
+else
+    set REPO_BRANCH "main"
+end
+
+if test -z "$REPO_BRANCH"
+    set REPO_BRANCH "main"
+end
+
 set RAW_BASE_URL "https://raw.githubusercontent.com/$REPO_USER/$REPO_NAME/$REPO_BRANCH"
 
 # Warning for dev branch
@@ -56,7 +68,7 @@ function download_file
     mkdir -p (dirname $target_path)
     
     log "Downloading $relative_path..."
-    if not curl -sL "$url" -o "$target_path"
+    if not curl -sLf "$url" -o "$target_path"
         log "Error: Failed to download $relative_path"
         exit 1
     end
@@ -127,6 +139,7 @@ check_dependency jq
 
 echo "Fish Dotfiles Manager Setup"
 echo "---------------------------"
+echo "Target Branch: $REPO_BRANCH"
 echo "1. Initialize new repository (starts with whitelist mode)"
 echo "2. Clone existing repository"
 echo "3. Update tools (Download latest and cleanup)"
