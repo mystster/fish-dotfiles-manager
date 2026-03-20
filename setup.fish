@@ -36,6 +36,7 @@ end
 set managed_tools \
     ".config/fish/functions/dot.fish" \
     ".config/fish/functions/dot-lazy.fish" \
+    ".config/fish/functions/dot-lazy.yml" \
     ".config/fish/functions/dot-add.fish" \
     ".config/fish/functions/_dot_add_helper.fish" \
     ".config/fish/functions/_dot_gemini_api.fish" \
